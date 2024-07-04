@@ -6,6 +6,7 @@ from rest_framework import status
 from applications.models import JobApplication, CustomUser
 
 
+User = get_user_model()
 
 class JobApplicationsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,10 +14,11 @@ class JobApplicationsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class UserSerializer(serializers.ModelSerializer):
-    applicationslist = JobApplicationsSerializer(many=True,read_only=True)
+    password2 = serializers.CharField(style={'input_type':'password'}, write_only = True)
+
     class Meta:
-        model = CustomUser
-        fields = ['uuid','email','first_name','last_name','password','is_active','username']
+        model = User
+        fields = ['id','email','first_name','last_name','password','is_active','username','password2']
         extra_kwargs = {
             'uuid':{'read_only':True},
             'password':{'write_only':True},
@@ -24,50 +26,24 @@ class UserSerializer(serializers.ModelSerializer):
             }
     
     def create(self,validated_data):
-        if validated_data.get('is_superuser',False):
-            user = CustomUser.objects.create_superuser(
-              email = validated_data['email'],
-              first_name = validated_data['first_name'],
-              last_name = validated_data['last_name'],            
-            )
-            user.set_password(validated_data['password'])
-        else :
-          user = CustomUser.objects.create_user(
-              email = validated_data['email'],
-              first_name = validated_data['first_name'],
-              last_name = validated_data['last_name'],
-              username = validated_data['username']
-          )
-          user.set_password(validated_data['password'])
-        user.save()
+        user = User.objects.create_user(**validated_data)
         return user
+    
+    def save(self):
+        password = self.validated_data['password']
+        password2= self.validated_data['password2']
 
-class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-    token = serializers.CharField(read_only=True)
-
-    def validate(self,data):
-        email = data.get('email')
-        password = data.get('password')
-        if email and password:
-          user = authenticate(email=email,password=password)
-          if not user:
-              raise serializers.ValidationError('Unable to log in with provided credential')
-          if not user.is_active:
-              raise serializers.ValidationError('User account is disabled')
-          
-          refresh = RefreshToken.for_user(user)
-
-          token_data= {
-              'refresh':str(refresh),
-              'access':str(refresh.access_token)
-          }
-          print(token_data)
-          return Response(token_data,status=status.HTTP_200_OK)
-        else:
-            raise serializers.ValidationError('Must include email and password')
+        if password != password2:
+            raise serializers.ValidationError({'error': 'Password does not match'})
+        if User.objects.filter(email = self.validated_data['email']).exists():
+            raise serializers.ValidationError({'error':'Email already exists'})
         
+        account = User(email = self.validated_data['email'],username = self.validated_data['username'])
+        account.set_password(password)
+        account.save()
+        return account
+
+
 
 
 

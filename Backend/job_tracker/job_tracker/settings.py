@@ -144,4 +144,5 @@ AUTH_USER_MODEL = 'applications.CustomUser'
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'ROTATE_REFRESH_TOKEN':True,
 }
