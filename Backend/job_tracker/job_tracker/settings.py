@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 
 load_dotenv()
 
@@ -45,17 +45,25 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'applications',
     'django_filters',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'job_tracker.urls'
 
@@ -150,4 +158,16 @@ AUTH_USER_MODEL = 'applications.CustomUser'
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ROTATE_REFRESH_TOKEN':True,
+    'AUTH_COOKIE':'access_token',
+    'AUTH_COOKIE_DOMAIN':None,
+    'AUTH_COOKIE_SECURE': False, 
+    'AUTH_COOKIE_HTTP_ONLY' : True,
+    'AUTH_COOKIE_PATH': '/',  
+    'AUTH_COOKIE_SAMESITE': 'Lax',
 }
+
+CSRF_COOKIE_SAMESITE = 'Strict' 
+SESSION_COOKIE_SAMESITE = 'Strict'
+
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True

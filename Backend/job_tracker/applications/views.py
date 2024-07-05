@@ -4,16 +4,24 @@ from rest_framework import status,generics
 from .serializers import UserSerializer,JobApplicationsSerializer,CompanySerializer
 from .models import JobApplication,Company
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView # type: ignore
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer # type: ignore
+from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 from rest_framework.pagination import PageNumberPagination
 from .filters import JobApplicationFilter
 
 # Create your views here.
 
+
+def get_tokens_for_user(user):
+  refresh = RefreshToken.for_user(user)
+  return {
+    'refresh':str(refresh),
+    'access':str(refresh.access_token)
+  }
 class JobApplicationList(APIView):
+  permission_classes = [IsAuthenticated]
 
   def get(self,request,*args,**kwargs):
     applications = JobApplication.objects.all().order_by('-applied_date')
@@ -36,6 +44,7 @@ class JobApplicationList(APIView):
   
 
 class JobApplicationDetail(APIView):
+  permission_classes = [IsAuthenticated]
 
   def get(self,request,pk):
     try:
@@ -90,30 +99,45 @@ class LoginView(TokenObtainPairView):
   permission_classes = [AllowAny]
   serializer_class = TokenObtainPairSerializer
 
+  def post(self,request,*args,**kwargs):
+    response = super().post(request,*args,**kwargs)
+    if response.status_code == 200:
+      access_token = response.data['access']
+      refresh_token = response.data['refresh']
+      data = {
+        'access_token':access_token,
+        'refresh_token':refresh_token
+      }
+      return Response(data, status=status.HTTP_200_OK)
+
+    return response
+      
+
 @api_view(['POST'])
 def logout_view(request):
   if request.method == 'POST':
-    request.user.auth_token.delete()
-    return Response(status=status.HTTP_200_OK)
+    response = Response({'message': 'Logged out succesfully'}, status=status.HTTP_200_OK)
+    response.delete_cookie('accessToken')
+    response.delete_cookie('refreshToken')
+    return Response
 
 @api_view(['POST'])    
 def registration_view(request):
   if request.method == 'POST':
     serializer = UserSerializer(data=request.data)
-    data ={}
     if serializer.is_valid():
       account = serializer.save()
-      data['response'] = 'User registered succesfully'
-      data['username'] = account.username
-      data['email'] = account.email
       refresh = RefreshToken.for_user(account)
-
-      data['token'] = {
-        'refresh':str(refresh),
-        'access':str(refresh.access_token)
-      }
-
-      return Response(serializer.data)
+      response = Response({
+        'response': 'User registered succesfully',
+        'username': account.username,
+        'email':account.email,
+        'token':{
+          'refresh':str(refresh),
+          'access':str(refresh.access_token)
+        }
+      },status=status.HTTP_201_CREATED)
+      return response
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   return Response({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
