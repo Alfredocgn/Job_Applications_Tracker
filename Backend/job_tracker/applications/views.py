@@ -1,22 +1,29 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status,generics
-from .serializers import UserSerializer,JobApplicationsSerializer
-from .models import JobApplication,CustomUser
+from .serializers import UserSerializer,JobApplicationsSerializer,CompanySerializer
+from .models import JobApplication,Company
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
+from .filters import JobApplicationFilter
+
 # Create your views here.
 
 class JobApplicationList(APIView):
 
-  def get(self,request):
-    applications = JobApplication.objects.all()
-    serializer = JobApplicationsSerializer(applications,many=True)
-    return Response(serializer.data)
+  def get(self,request,*args,**kwargs):
+    applications = JobApplication.objects.all().order_by('-applied_date')
+    filterset = JobApplicationFilter(request.GET,queryset=applications)
+    if filterset.is_valid():
+      applications = filterset.qs
+    paginator = PageNumberPagination()
+    result_page = paginator.paginate_queryset(applications,request)
+    serializer = JobApplicationsSerializer(result_page,many=True)
+    return paginator.get_paginated_response(serializer.data)
   
   def post(self,request):
     serializer = JobApplicationsSerializer(data = request.data)
@@ -49,7 +56,7 @@ class JobApplicationDetail(APIView):
     
     serializer = JobApplicationsSerializer(application,data=request.data)
 
-    if serializer.is_valid:
+    if serializer.is_valid():
       serializer.save()
       return Response(serializer.data)
     else:
@@ -63,9 +70,16 @@ class JobApplicationDetail(APIView):
       return Response({'error':'Job application not found'}, status=status.HTTP_404_NOT_FOUND)
     
     application.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+    return Response({'Application deleted succesfully'},status=status.HTTP_204_NO_CONTENT)
     
 
+class CompanyListCreateAPIview(generics.ListCreateAPIView):
+  queryset = Company.objects.all()
+  serializer_class = CompanySerializer
+
+class CompanyDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+  queryset = Company.objects.all()
+  serializer_class = CompanySerializer
 
 # class SignUpView(generics.CreateAPIView):
 #   queryset = CustomUser.objects.all()
@@ -103,26 +117,6 @@ def registration_view(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   return Response({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-# @api_view(['POST'])
-# def signup(request):
-#   serializer = UserSerializer(data=request.data)
-#   if serializer.is_valid():
-#     serializer.save()
-#     return Response(serializer.data,status=status.HTTP_201_CREATED)
-#   return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-
-# @api_view(['POST'])
-# def login(request):
-#   serializer = LoginSerializer(data=request.data)
-#   print('serializer data',serializer)
-#   print('request data',request.data)
-
-#   if serializer.is_valid():
-#     return Response(serializer.validated_data['token'],status=status.HTTP_200_OK)
-#   else :
-#     print('Serializers errors', serializer.errors)
-#     return Response(serializer.errors,status=status.HTTP_401_UNAUTHORIZED)
 
 # @api_view(['GET'])
 # def applications_list(request):

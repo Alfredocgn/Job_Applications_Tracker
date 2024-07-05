@@ -3,15 +3,33 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 from rest_framework.response import Response
 from rest_framework import status
-from applications.models import JobApplication, CustomUser
+from applications.models import JobApplication, Company
 
 
 User = get_user_model()
 
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = "__all__"
+
+
 class JobApplicationsSerializer(serializers.ModelSerializer):
+    company = CompanySerializer()
     class Meta:
         model = JobApplication
         fields = "__all__"
+    
+    def validate_company(self,value):
+        if not value:
+            raise serializers.ValidationError("Company field is required")
+        return value 
+    
+    def create(self,validated_data):
+        company_data = validated_data.pop('company')
+        company_instance, created = Company.objects.get_or_create(**company_data)
+        job_application = JobApplication.objects.create(company = company_instance, **validated_data)
+        return job_application
 
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type':'password'}, write_only = True)
@@ -38,7 +56,13 @@ class UserSerializer(serializers.ModelSerializer):
         if User.objects.filter(email = self.validated_data['email']).exists():
             raise serializers.ValidationError({'error':'Email already exists'})
         
-        account = User(email = self.validated_data['email'],username = self.validated_data['username'])
+        account = User(
+            email = self.validated_data['email'],
+            username = self.validated_data['username'],
+            first_name = self.validated_data['first_name'],
+            last_name = self.validated_data['last_name'],
+
+            )
         account.set_password(password)
         account.save()
         return account

@@ -12,10 +12,18 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.first_name
 
+
+class Company(models.Model):
+    name = models.CharField(max_length=255)
+    industry = models.CharField(max_length=255,blank=True,null=True)
+    location = models.CharField(max_length=255,blank=True,null=True)
+
+    def __str__(self):
+        return self.name
 class JobApplication(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='applicationslist')
     title = models.CharField(max_length=100)
-    company = models.CharField(max_length=100)
+    company = models.ForeignKey(Company,on_delete=models.CASCADE)
     status_choices = [
         ('NA','No Answer'),
         ('RE', 'Rejected'),
@@ -29,4 +37,6 @@ class JobApplication(models.Model):
 
 
     def __str__(self):
-        return f"{self.title} en {self.company} ({self.get_status_display()})"
+        return f"{self.title} at {self.company} ({self.get_status_display()})"
+
+

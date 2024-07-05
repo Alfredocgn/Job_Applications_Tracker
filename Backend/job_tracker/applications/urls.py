@@ -1,5 +1,5 @@
 from django.urls import path
-from applications.views import JobApplicationList,JobApplicationDetail
+from applications.views import JobApplicationList,JobApplicationDetail,CompanyDetailAPIView,CompanyListCreateAPIview
 # from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import LoginView, registration_view, logout_view
 
@@ -13,6 +13,8 @@ urlpatterns = [
   path('applications/',JobApplicationList.as_view(),name='applications'),
   path('applications/new',JobApplicationList.as_view(),name='new_applications'),
   path('applications/<int:pk>',JobApplicationDetail.as_view(),name='application_detail'),
+  path('companies/', CompanyListCreateAPIview.as_view(),name = 'company-list-create'),
+  path('companies/<int:pk>/', CompanyDetailAPIView.as_view(),name = 'company-detail' )
   # path('api/token/',TokenObtainPairView.as_view(),name='token_obtain_pair'),
   # path('api/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
 ]
