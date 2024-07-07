@@ -5,21 +5,16 @@ from .serializers import UserSerializer,JobApplicationsSerializer,CompanySeriali
 from .models import JobApplication,Company
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.views import TokenObtainPairView # type: ignore
+from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView # type: ignore
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer # type: ignore
 from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 from rest_framework.pagination import PageNumberPagination
 from .filters import JobApplicationFilter
-
+from datetime import datetime,timedelta
 # Create your views here.
 
 
-def get_tokens_for_user(user):
-  refresh = RefreshToken.for_user(user)
-  return {
-    'refresh':str(refresh),
-    'access':str(refresh.access_token)
-  }
+
 class JobApplicationList(APIView):
   permission_classes = [IsAuthenticated]
 
@@ -104,11 +99,9 @@ class LoginView(TokenObtainPairView):
     if response.status_code == 200:
       access_token = response.data['access']
       refresh_token = response.data['refresh']
-      data = {
-        'access_token':access_token,
-        'refresh_token':refresh_token
-      }
-      return Response(data, status=status.HTTP_200_OK)
+      response.data['access_token'] = access_token
+      response.data['refresh_token'] = refresh_token
+      return response
 
     return response
       
@@ -117,8 +110,7 @@ class LoginView(TokenObtainPairView):
 def logout_view(request):
   if request.method == 'POST':
     response = Response({'message': 'Logged out succesfully'}, status=status.HTTP_200_OK)
-    response.delete_cookie('accessToken')
-    response.delete_cookie('refreshToken')
+
     return Response
 
 @api_view(['POST'])    
@@ -140,6 +132,18 @@ def registration_view(request):
       return response
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   return Response({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+  def post(self,request,*args,**kwargs):
+    response = super(CustomTokenRefreshView,self).post(request,*args,**kwargs)
+    if response.status_code == 200:
+      access_token = response.data['access']
+      
+      response.data['access_token'] = access_token
+
+      return response
+    return response
 
 
 # @api_view(['GET'])
