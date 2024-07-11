@@ -49,15 +49,15 @@ export const CreateApplication = () => {
 
   }
 
-  const handleclick = () => {
-    console.log(applicationForm.company.industry)
-  }
 
-  const handleChange = (e:ChangeEvent<HTMLInputElement | HTMLSelectElement> ) => {
+
+  const handleChange = (e:ChangeEvent<HTMLInputElement | HTMLSelectElement |HTMLTextAreaElement> ) => {
     const {name,value} = e.target
+    console.log(e.target)
     if (name.startsWith('company.')){
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const[_,key]= name.split('.')
+
       setApplicationForm((prevState) => ({
         ...prevState,
         company:{
@@ -65,6 +65,7 @@ export const CreateApplication = () => {
           [key]:value,
         }
       }))
+      console.log(key)
     }else {
       setApplicationForm((prevState) => ({
         ...prevState,
@@ -110,7 +111,7 @@ export const CreateApplication = () => {
         </div>
         <div className="flex gap-2 items-start flex-col">
           <label htmlFor="company.industry">Industry:</label>
-          <input type="text" id="company.industry" name="company.industry" className="p-1 rounded-md w-full" value={applicationForm.company.industry} onClick={handleclick}/>
+          <input type="text" id="company.industry" name="company.industry" className="p-1 rounded-md w-full" value={applicationForm.company.industry} onChange={handleChange} />
         </div>
         <div className="flex gap-2 items-start flex-col">
           <label htmlFor="response_date">Response Date:</label>
@@ -122,7 +123,7 @@ export const CreateApplication = () => {
         </div>
         <div className="flex gap-2 items-start flex-col">
           <label htmlFor="description_job">Description:</label>
-          <textarea name="description_job" id="description_job" className="p-1 rounded-md w-full" value={applicationForm.description_job}></textarea>
+          <textarea name="description_job" id="description_job" className="p-1 rounded-md w-full" value={applicationForm.description_job} onChange={handleChange}></textarea>
         </div>
         <button className=" mb-2 border-2 rounded-xl p-1 inline-block" type="submit">Submit</button>
       </form>
