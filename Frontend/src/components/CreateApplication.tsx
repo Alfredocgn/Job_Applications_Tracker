@@ -17,8 +17,8 @@ export const CreateApplication = () => {
       industry: "",
       location: "",
     },
-    response_date: "",
-    interview_date: "",
+    response_date: null,
+    interview_date: null,
     description_job: "",
 
   }
@@ -33,10 +33,11 @@ export const CreateApplication = () => {
         method:'POST',
         headers:{
           'Content-Type':'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         },
         body:JSON.stringify(applicationData)
       })
+      console.log(token)
 
       if (response.ok){
         navigate('/home')
@@ -53,7 +54,7 @@ export const CreateApplication = () => {
 
   const handleChange = (e:ChangeEvent<HTMLInputElement | HTMLSelectElement |HTMLTextAreaElement> ) => {
     const {name,value} = e.target
-    console.log(e.target)
+
     if (name.startsWith('company.')){
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const[_,key]= name.split('.')
@@ -65,7 +66,7 @@ export const CreateApplication = () => {
           [key]:value,
         }
       }))
-      console.log(key)
+
     }else {
       setApplicationForm((prevState) => ({
         ...prevState,
@@ -73,9 +74,10 @@ export const CreateApplication = () => {
       }))
     }
   }
-  
+
   const handleSubmit = (e:FormEvent) => {
     e.preventDefault()
+    
     console.log(applicationForm)
     fetchApplication(applicationForm)
     setApplicationForm(initialApplicationForm)
@@ -115,11 +117,11 @@ export const CreateApplication = () => {
         </div>
         <div className="flex gap-2 items-start flex-col">
           <label htmlFor="response_date">Response Date:</label>
-          <input type="date" id="response_date" name="response_date" className="p-1 rounded-md w-full"  value={applicationForm.response_date}/>
+          <input type="date" id="response_date" name="response_date" className="p-1 rounded-md w-full"  value={applicationForm.response_date ?? ""}/>
         </div>
         <div className="flex gap-2 items-start flex-col">
           <label htmlFor="interview_date">Interview Date:</label>
-          <input type="date" name="interview_date" id="interview_date" className="p-1 rounded-md w-full" value={applicationForm.interview_date} />
+          <input type="date" name="interview_date" id="interview_date" className="p-1 rounded-md w-full" value={applicationForm.interview_date ?? ""} />
         </div>
         <div className="flex gap-2 items-start flex-col">
           <label htmlFor="description_job">Description:</label>

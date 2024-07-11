@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 export interface Application {
   title:string;
   applied_date:string;
-  description_job?:string;
-  interview_date?: string;
-  response_date?:string;
+  description_job?:string ;
+  interview_date?: string | null;
+  response_date?:string | null;
   status:string;
   company:{name:string,industry:string,location:string};
   id?:number;
@@ -35,6 +35,7 @@ export const Home = () => {
       if(response.ok){
         setLoading(false)
         const applications = await response.json()
+        console.log(applications)
 
         setData(applications.results)
       }

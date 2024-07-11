@@ -19,7 +19,7 @@ class JobApplicationList(APIView):
   permission_classes = [IsAuthenticated]
 
   def get(self,request,*args,**kwargs):
-    applications = JobApplication.objects.all().order_by('-applied_date')
+    applications = JobApplication.objects.filter(user = request.user).order_by('-applied_date')
     filterset = JobApplicationFilter(request.GET,queryset=applications)
     if filterset.is_valid():
       applications = filterset.qs
@@ -29,11 +29,11 @@ class JobApplicationList(APIView):
     return paginator.get_paginated_response(serializer.data)
   
   def post(self,request):
-    serializer = JobApplicationsSerializer(data = request.data)
-    print(request.data)
+    serializer = JobApplicationsSerializer(data = request.data, context ={'request':request})
+    print(request)
     if serializer.is_valid():
       serializer.save()
-      return Response(serializer.data)
+      return Response(serializer.data,status=status.HTTP_201_CREATED)
     else:
       return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     
@@ -44,7 +44,7 @@ class JobApplicationDetail(APIView):
 
   def get(self,request,pk):
     try:
-      application = JobApplication.objects.get(pk=pk)
+      application = JobApplication.objects.get(pk=pk,user=request.user)
       
     except JobApplication.DoesNotExist:
       return Response({'error':'Job application not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -54,7 +54,7 @@ class JobApplicationDetail(APIView):
   
   def put(self,request,pk):
     try:
-      application = JobApplication.objects.get(pk=pk)
+      application = JobApplication.objects.get(pk=pk,user=request.user)
       
     except JobApplication.DoesNotExist:
       return Response({'error':'Job application not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -65,11 +65,11 @@ class JobApplicationDetail(APIView):
       serializer.save()
       return Response(serializer.data)
     else:
-      return Response(serializer.errors,status=status.HTTP_406_NOT_ACCEPTABLE)
+      return Response(serializer.errors,status=status.HTTP_404_NOT_FOUND)
     
   def delete(self,request,pk):
     try:
-      application = JobApplication.objects.get(pk=pk)
+      application = JobApplication.objects.get(pk=pk,user=request.user)
       
     except JobApplication.DoesNotExist:
       return Response({'error':'Job application not found'}, status=status.HTTP_404_NOT_FOUND)

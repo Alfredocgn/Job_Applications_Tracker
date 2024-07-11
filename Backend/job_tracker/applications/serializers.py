@@ -19,6 +19,9 @@ class JobApplicationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobApplication
         fields = "__all__"
+        extra_kwargs = {
+            'user':{'read_only':True}
+        }
     
     def validate_company(self,value):
         if not value:
@@ -28,7 +31,8 @@ class JobApplicationsSerializer(serializers.ModelSerializer):
     def create(self,validated_data):
         company_data = validated_data.pop('company')
         company_instance, created = Company.objects.get_or_create(**company_data)
-        job_application = JobApplication.objects.create(company = company_instance, **validated_data)
+        user = self.context['request'].user
+        job_application = JobApplication.objects.create(company = company_instance,user=user, **validated_data)
         return job_application
 
 class UserSerializer(serializers.ModelSerializer):
