@@ -30,6 +30,7 @@ class JobApplicationList(APIView):
   
   def post(self,request):
     serializer = JobApplicationsSerializer(data = request.data)
+    print(request.data)
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data)
@@ -111,7 +112,7 @@ def logout_view(request):
   if request.method == 'POST':
     response = Response({'message': 'Logged out succesfully'}, status=status.HTTP_200_OK)
 
-    return Response
+    return response
 
 @api_view(['POST'])    
 def registration_view(request):

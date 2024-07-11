@@ -11,7 +11,6 @@ urlpatterns = [
   path('login/', LoginView.as_view() ,name='login'),
   path('logout/',  logout_view ,name='logout'),
   path('applications/',JobApplicationList.as_view(),name='applications'),
-  path('applications/new',JobApplicationList.as_view(),name='new_applications'),
   path('applications/<int:pk>',JobApplicationDetail.as_view(),name='application_detail'),
   path('companies/', CompanyListCreateAPIview.as_view(),name = 'company-list-create'),
   path('companies/<int:pk>/', CompanyDetailAPIView.as_view(),name = 'company-detail' ),
