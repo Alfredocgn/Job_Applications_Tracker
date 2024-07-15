@@ -100,7 +100,7 @@ export const CreateApplication = () => {
           <select name="status" id="status" className="p-1 rounded-md w-full" onChange={handleChange} value={applicationForm.status}>
             <option value="NA">No Answer</option>
             <option value="RE">Rejected</option>
-            <option value="IN">No Interview</option>
+            <option value="IN">Interview</option>
           </select>
         </div>
         <div className="flex gap-2 items-start flex-col">

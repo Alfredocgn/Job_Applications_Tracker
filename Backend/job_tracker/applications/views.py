@@ -30,7 +30,7 @@ class JobApplicationList(APIView):
   
   def post(self,request):
     serializer = JobApplicationsSerializer(data = request.data, context ={'request':request})
-    print(request)
+
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data,status=status.HTTP_201_CREATED)
@@ -55,11 +55,13 @@ class JobApplicationDetail(APIView):
   def put(self,request,pk):
     try:
       application = JobApplication.objects.get(pk=pk,user=request.user)
+      print(application)
       
     except JobApplication.DoesNotExist:
       return Response({'error':'Job application not found'}, status=status.HTTP_404_NOT_FOUND)
     
     serializer = JobApplicationsSerializer(application,data=request.data)
+    print(serializer)
 
     if serializer.is_valid():
       serializer.save()

@@ -158,16 +158,4 @@ AUTH_USER_MODEL = 'applications.CustomUser'
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ROTATE_REFRESH_TOKEN':True,
-    'AUTH_COOKIE':'access_token',
-    'AUTH_COOKIE_DOMAIN':None,
-    'AUTH_COOKIE_SECURE': False, 
-    'AUTH_COOKIE_HTTP_ONLY' : True,
-    'AUTH_COOKIE_PATH': '/',  
-    'AUTH_COOKIE_SAMESITE': 'Lax',
 }
-
-CSRF_COOKIE_SAMESITE = 'Strict' 
-SESSION_COOKIE_SAMESITE = 'Strict'
-
-CSRF_COOKIE_HTTPONLY = True
-SESSION_COOKIE_HTTPONLY = True

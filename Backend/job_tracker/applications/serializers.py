@@ -34,6 +34,23 @@ class JobApplicationsSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         job_application = JobApplication.objects.create(company = company_instance,user=user, **validated_data)
         return job_application
+    
+    def update(self,instance,validated_data):
+        company_data = validated_data.pop('company')
+        company_instance,created = Company.objects.get_or_create(**company_data)
+
+        instance.company = company_instance
+        instance.title = validated_data.get('title',instance.title)
+        instance.status = validated_data.get('status',instance.status)
+        instance.applied_date = validated_data.get('applied_date',instance.applied_date)
+        instance.response_date = validated_data.get('response_date',instance.response_date)
+        instance.interview_date = validated_data.get('interview_date',instance.interview_date)
+        instance.description_job = validated_data.get('description_job',instance.description_job)
+
+        instance.save()
+        return instance
+
+
 
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type':'password'}, write_only = True)
