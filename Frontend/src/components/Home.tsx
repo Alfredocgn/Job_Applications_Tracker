@@ -113,7 +113,7 @@ export const Home = () => {
   }
 
   if(loading){
-    return <div>Loading appplications...</div>
+    return <div>Loading applications...</div>
   }
 
   if(error){
