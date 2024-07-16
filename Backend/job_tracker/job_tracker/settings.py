@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-!5i5l0$)y&((no+=z3ko^38u*rq-dhl!we$2_s$vvky(1wt53p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['107.22.121.34']
 
 
 # Application definition
@@ -100,6 +100,7 @@ WSGI_APPLICATION = 'job_tracker.wsgi.application'
 
 #     }
 # }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
