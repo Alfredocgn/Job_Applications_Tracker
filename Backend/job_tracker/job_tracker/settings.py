@@ -89,29 +89,29 @@ WSGI_APPLICATION = 'job_tracker.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT'),
-
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'jobtracker',
-        'USER': 'postgres',
-        'PASSWORD': 'alfredo1234',
-        'HOST': 'jobtracker.c12ew66iqhb1.us-east-1.rds.amazonaws.com',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
 
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'jobtracker',
+#         'USER': 'postgres',
+#         'PASSWORD': 'alfredo1234',
+#         'HOST': 'jobtracker.c12ew66iqhb1.us-east-1.rds.amazonaws.com',
+#         'PORT': '5432',
+
+#     }
+# }
 
 
 # Password validation
