@@ -1,5 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from "react"
 import { useNavigate } from "react-router-dom";
+import { URLAWS } from "./Home";
 
 
 
@@ -22,7 +23,7 @@ export const Login = () => {
 
   const fetchLogin = async (formData: FormData) => {
     try{
-      const response = await fetch('http://127.0.0.1:8000/login/',{
+      const response = await fetch(`${URLAWS}/login/`,{
         method:'POST',
         headers:{
           'Content-Type':'application/json'

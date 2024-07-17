@@ -61,6 +61,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
+    'http://jobtracker-react.s3-website-us-east-1.amazonaws.com/'
 ]
 
 CORS_ALLOW_CREDENTIALS = True

@@ -1,3 +1,4 @@
+import { URLAWS } from "../components/Home";
 
 interface ApiFetchOptions extends RequestInit{
     headers?:HeadersInit
@@ -16,7 +17,7 @@ export const apiFetch = async (url:string, options:ApiFetchOptions = {}):Promise
     });
 
     if (response.status === 401) {
-        const refreshResponse = await fetch('http://localhost:8000/api/token/refresh/', {
+        const refreshResponse = await fetch(`${URLAWS}/api/token/refresh/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

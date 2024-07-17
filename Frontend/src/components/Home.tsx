@@ -15,6 +15,8 @@ export interface Application {
   id?:number;
 }
 
+export const URLAWS ='http://54.210.189.115:8080'
+// const URLLOCAL = 'http://localhost:8000'
 export const Home = () => {
 
   const navigate = useNavigate()
@@ -35,7 +37,7 @@ export const Home = () => {
     setLoading(true)
 
     try{
-      const response = await apiFetch('http://localhost:8000/applications/')
+      const response = await apiFetch(`${URLAWS}/applications/`)
       if(response.ok){
         setLoading(false)
         const applications = await response.json()
@@ -53,7 +55,7 @@ export const Home = () => {
     if(!id) return
 
     try {
-      const response = await apiFetch(`http://localhost:8000/applications/${id}`,{
+      const response = await apiFetch(`${URLAWS}/applications/${id}`,{
         method: "DELETE",
       })
       if(response.ok){
@@ -89,7 +91,7 @@ export const Home = () => {
   const handleSaveClick = async () => {
     if(!editedApplication || !editingId) return;
     try{
-      const response = await apiFetch(`http://localhost:8000/applications/${editingId}`,{
+      const response = await apiFetch(`${URLAWS}/applications/${editingId}`,{
         method:'PUT',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify(editedApplication),

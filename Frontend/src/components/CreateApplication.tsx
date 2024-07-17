@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { Application } from "./Home"
+import { Application, URLAWS } from "./Home"
 import { ChangeEvent, FormEvent, useState } from "react"
 
 
@@ -29,7 +29,7 @@ export const CreateApplication = () => {
 
     try{
       const token = localStorage.getItem("access_token")
-      const response = await fetch('http://127.0.0.1:8000/applications/',{
+      const response = await fetch(`${URLAWS}/applications/`,{
         method:'POST',
         headers:{
           'Content-Type':'application/json',
