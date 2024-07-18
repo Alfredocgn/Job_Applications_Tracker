@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-!5i5l0$)y&((no+=z3ko^38u*rq-dhl!we$2_s$vvky(1wt53p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['54.210.189.115']
+ALLOWED_HOSTS = ['3.81.127.234']
 
 
 # Application definition
@@ -62,7 +62,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://jobtracker-react.s3-website-us-east-1.amazonaws.com',
-    'http://d1o95bm9qrsdhw.cloudfront.net'
+    'https://d1o95bm9qrsdhw.cloudfront.net'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
