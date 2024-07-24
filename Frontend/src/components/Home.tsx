@@ -15,8 +15,8 @@ export interface Application {
   id?:number;
 }
 
-export const URLAWS ='http://54.210.189.115:8080'
-// const URLLOCAL = 'http://localhost:8000'
+// export const URLAWS ='http://3.81.127.234:8080'
+export const URLAWS = 'http://localhost:8000'
 export const Home = () => {
 
   const navigate = useNavigate()
@@ -38,6 +38,7 @@ export const Home = () => {
 
     try{
       const response = await apiFetch(`${URLAWS}/applications/`)
+
       if(response.ok){
         setLoading(false)
         const applications = await response.json()
@@ -124,6 +125,10 @@ export const Home = () => {
 
   const handleNewApplicationButton = () => {
     navigate('/new')
+  }
+
+  const handleCompaniesButton = () => {
+    navigate('/companies')
   }
 
   return (
@@ -214,6 +219,7 @@ export const Home = () => {
         </tbody>
       </table>
       <button className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block " onClick={handleNewApplicationButton}> Add Application </button>
+      <button className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block " onClick={handleCompaniesButton}>Go to companies</button>
     </div>
   )
 }
