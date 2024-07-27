@@ -5,6 +5,7 @@ import { Home } from './components/Home'
 import { CreateApplication } from './components/CreateApplication'
 import { NotFound } from './components/NotFound'
 import { Companies } from './components/Companies'
+import { Navbar } from './components/Navbar'
 
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
 
   return (
     <>
+    <Navbar />
     <Router>
       <Routes>
         <Route path='/' Component={Login}/>

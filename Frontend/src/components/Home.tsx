@@ -26,29 +26,38 @@ export const Home = () => {
   const [error,setError] = useState<boolean>(false);
   const [editingId,setEditingId] = useState<number | null>(null);
   const [editedApplication,setEditedApplication] = useState<Partial<Application> | null>(null);
+  const [currentPage,setCurrentPage] = useState<number>(1)
+  const [totalPages,setTotalPages] = useState<number>(1)
 
   useEffect(()=> {
-    fetchAplications()
-  },[])
+    fetchAplications(currentPage)
+  },[currentPage])
 
 
-  const fetchAplications = async () => {
+  const fetchAplications = async (page:number) => {
 
     setLoading(true)
 
-    try{
-      const response = await apiFetch(`${URLAWS}/applications/`)
+    let data: { results: Application[]; next: string | null; count: number } ;
 
+    try{
+      const response = await apiFetch(`${URLAWS}/applications/?page=${page}`)
       if(response.ok){
-        setLoading(false)
-        const applications = await response.json()
-        setData(applications.results)
+        data = await response.json()
+        setData(data.results)
+        setTotalPages(Math.ceil(data.count /10))
+      }else{
+        throw new Error('Error fetching applications')
       }
+      
+
       
     }catch(error){
       setLoading(false)
       setError(true)
       console.error('Error fetching applications',error)
+    }finally{
+      setLoading(false)
     }
   }
 
@@ -131,6 +140,17 @@ export const Home = () => {
     navigate('/companies')
   }
 
+  const handleNextPage = () => {
+    if(currentPage<totalPages){
+      setCurrentPage((prevPage) => prevPage + 1)
+    }
+  }
+  const handlePreviousPage = () => {
+    if(currentPage > 1){
+      setCurrentPage((prevPage) => prevPage -1)
+    }
+  } 
+
   return (
     <div className="flex flex-col items-center  gap-2 ">
       <h1  className=" font-bold text-[1.5rem] pb-4 ">Applications</h1>
@@ -155,7 +175,7 @@ export const Home = () => {
           {data ? (
             data.map((application) => (
               <tr key={application.id} >
-                <td className="w-[10rem] text-center border-2">{application.title}</td>
+                <td className="w-[10rem] text-center border-2 p-2">{application.title}</td>
                 <td className="w-[10rem] text-center border-2">{application.applied_date}</td>
                 {editingId === application.id ? (
                   <>
@@ -186,7 +206,7 @@ export const Home = () => {
                   <td className="w-[10rem] text-center border-2">{application.status}</td>
                   <td className="w-[10rem] text-center border-2">{application.response_date}</td>
                   <td className="w-[10rem] text-center border-2">{application.interview_date}</td>
-                  <td className="w-[10rem] text-center border-2">{application.description_job}</td>                
+                  <td className="w-[10rem] text-center border-2 p-2">{application.description_job}</td>                
                   </>               
                   )}
 
@@ -218,8 +238,16 @@ export const Home = () => {
           )}
         </tbody>
       </table>
+      <div className="flex justify-between w-full max-w-[500px] mt-4">
+        <button className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block " onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
+        <span className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block ">Page {currentPage} of {totalPages}</span>
+        <button className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block " onClick={handleNextPage} disabled={currentPage === totalPages}>Next</button>
+      </div>
+      <div className="flex gap-2">
       <button className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block " onClick={handleNewApplicationButton}> Add Application </button>
       <button className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block " onClick={handleCompaniesButton}>Go to companies</button>
+
+      </div>
     </div>
   )
 }

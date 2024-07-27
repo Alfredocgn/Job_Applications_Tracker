@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { URLAWS } from "./Home";
 import { apiFetch } from "../utils/utils";
-import { MdOutlineDeleteOutline, MdOutlineModeEdit, MdCheck, MdOutlineCancelPresentation } from "react-icons/md";
+import { MdOutlineDeleteOutline } from "react-icons/md";
 
 interface Company {
   id: number;
@@ -14,21 +14,22 @@ export const Companies = () => {
   const [data, setData] = useState<Company[] | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editedCompany, setEditedCompany] = useState<Company | null>(null);
+  const [currentPage,setCurrentPage] = useState<number>(1)
+  const [totalPages,setTotalPages] = useState<number>(1)
 
   useEffect(() => {
-    fetchCompanies();
-  }, []);
+    fetchCompanies(currentPage);
+  }, [currentPage]);
 
-  const fetchCompanies = async () => {
+  const fetchCompanies = async (page:number) => {
     setLoading(true);
 
     try {
-      const response = await apiFetch(`${URLAWS}/companies/`);
+      const response = await apiFetch(`${URLAWS}/companies/?page=${page}`);
       if (response.ok) {
         const applications = await response.json();
         setData(applications.results);
+        setTotalPages(Math.ceil(applications.count / 10))
 
       } else {
         setError(true);
@@ -54,42 +55,22 @@ export const Companies = () => {
     }
   };
 
-  const handleEditClick = (company: Company) => {
-    setEditingId(company.id);
-    setEditedCompany(company);
-  };
 
-  const handleCancelClick = () => {
-    setEditingId(null);
-    setEditedCompany(null);
-  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setEditedCompany((prev) => prev ? { ...prev, [name]: value } : null);
-  };
 
-  const handleSaveClick = async () => {
-    if (!editedCompany || editingId === null) return;
-    try {
-      const response = await apiFetch(`${URLAWS}/applications/${editingId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editedCompany),
-      });
 
-      if (response.ok) {
-        const updatedCompany = await response.json();
-        setData((prevData) => prevData?.map((company) => company.id === editingId ? updatedCompany : company));
-        setEditingId(null);
-        setEditedCompany(null);
-      } else {
-        console.log('Error updating application', response.statusText);
-      }
-    } catch (error) {
-      console.error("Error updating application", error);
+
+  const handleNextPage = () => {
+    if(currentPage<totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1)
     }
-  };
+  }
+
+  const handlePreviousPage = () => {
+    if(currentPage > 1){
+      setCurrentPage((prevPage) => prevPage - 1)
+    }
+  }
 
   if (loading) {
     return <div>Loading applications...</div>;
@@ -99,8 +80,9 @@ export const Companies = () => {
     return <div>Error fetching data</div>;
   }
 
+
   return (
-    <div>
+    <div className="flex flex-col items-center">
       <h1 className="font-bold text-[1.5rem] pb-4 text-center">Companies</h1>
       <table className="mb-4">
         <thead>
@@ -109,7 +91,7 @@ export const Companies = () => {
             <th className="w-[10rem] text-center border-2">Location</th>
             <th className="w-[10rem] text-center border-2">Industry</th>
             <th className="w-[10rem] text-center border-2">
-              {editingId ? "Save / Cancel" : "Edit / Delete"}
+              Delete
             </th>
           </tr>
         </thead>
@@ -121,17 +103,10 @@ export const Companies = () => {
                 <td className="w-[10rem] text-center border-2">{company.location}</td>
                 <td className="w-[10rem] text-center border-2">{company.industry}</td>
                 <td className="w-[10rem] text-center border-2">
-                  {editingId === company.id ? (
+
                     <div className="flex gap-2 items-center justify-center text-[1.5rem]">
-                      <button onClick={handleSaveClick}><MdCheck /></button>
-                      <button onClick={handleCancelClick}><MdOutlineCancelPresentation /></button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2 items-center justify-center text-[1.5rem]">
-                      <button onClick={() => handleEditClick(company)}><MdOutlineModeEdit /></button>
                       <button onClick={() => handleDelete(company.id)}><MdOutlineDeleteOutline /></button>
                     </div>
-                  )}
                 </td>
               </tr>
             ))
@@ -142,6 +117,11 @@ export const Companies = () => {
           )}
         </tbody>
       </table>
+      <div className="flex justify-between w-full max-w-[500px] mt-4 ">
+        <button className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block " onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
+        <span className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block ">Page {currentPage} of {totalPages}</span>
+        <button className=" mb-2 border-2 rounded-xl px-4 py-2 inline-block " onClick={handleNextPage} disabled={currentPage === totalPages}>Next</button>
+      </div>
     </div>
   );
 };

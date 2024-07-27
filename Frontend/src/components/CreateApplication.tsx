@@ -27,24 +27,29 @@ export const CreateApplication = () => {
   const [applicationForm,setApplicationForm] = useState<Application>(initialApplicationForm)
   const [companies,setCompanies] = useState<{name:'string',industry:'string',location:'string'}[]>([])
   const [isNewCompany,setIsNewCompany] = useState<boolean>(false)
+  const [page,setPage] = useState<number>(1)
 
 
-  useEffect(()=>{
-    const fetchCompanies = async () => {
-      try{
+const fetchCompanies = async (page:number) => {
+    try{
 
-        const response = await fetch(`${URLAWS}/companies/`)
-        const data = await response.json()
-        setCompanies(data.results)
+      const response = await fetch(`${URLAWS}/companies/?page=${page}`)
+      const data = await response.json()
 
 
+      setCompanies((prevCompanies) => [...prevCompanies,...data.results])
 
-      }catch(error){
-        console.log('Error fething companies',error)
-      }
+
+
+
+    }catch(error){
+      console.log('Error fething companies',error)
     }
-    fetchCompanies()
-  },[])
+  }
+  useEffect(()=>{
+
+    fetchCompanies(page)
+  },[page])
 
 
   const fetchApplication = async (applicationData :Application) => {
@@ -122,7 +127,12 @@ export const CreateApplication = () => {
     setApplicationForm(initialApplicationForm)
 
   }
-
+  const handleScroll = (e:React.UIEvent<HTMLSelectElement>) => {
+    const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
+    if(bottom){
+      setPage((prevPage) => prevPage + 1)
+    }
+  }
   return (
     <div>
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -144,20 +154,21 @@ export const CreateApplication = () => {
         </div>
         <div className="flex gap-2 items-start flex-col">
           <label htmlFor="companySelect">Company Name:</label>
-          <select name="companySelect" id="companySelect" onChange={handleChange} className="w-full p-1 rounded-md">
-            <option value=''>Select a company</option>
-            {companies.length > 0 && companies.map((company)=> {
-              return(
-                
-                <option key={company.name} value={company.name}>
-                  {company.name}
-                </option>
-              )
-            })}
-            <option value='new'>Create new company</option>
-            {companies.length === 0 && <p>No companies available</p>}
-          </select>
-        </div>
+
+              <select name="companySelect" id="companySelect" onChange={handleChange} onScroll={handleScroll} className="w-full p-1 rounded-md">
+                <option value=''>Select a company</option>
+                {companies.length > 0 && companies.map((company)=> {
+                  return(
+                    
+                    <option key={company.name} value={company.name}>
+                      {company.name}
+                    </option>
+                  )
+                })}
+                <option value='new'>Create new company</option>
+                {companies.length === 0 && <p>No companies available</p>}
+              </select>
+            </div>
         {
           isNewCompany && (
             <>
@@ -176,14 +187,6 @@ export const CreateApplication = () => {
             </>
           )
         }
-        {/* <div className="flex gap-2 items-start flex-col">
-          <label htmlFor="company.location">Location:</label>
-          <input onChange={handleChange} type="text" id="company.location"  name="company.location" className="p-1 rounded-md w-full" value={applicationForm.company.location}/>
-        </div>
-        <div className="flex gap-2 items-start flex-col">
-          <label htmlFor="company.industry">Industry:</label>
-          <input type="text" id="company.industry" name="company.industry" className="p-1 rounded-md w-full" value={applicationForm.company.industry} onChange={handleChange} />
-        </div> */}
         <div className="flex gap-2 items-start flex-col">
           <label htmlFor="response_date">Response Date:</label>
           <input type="date" id="response_date" name="response_date" className="p-1 rounded-md w-full"  value={applicationForm.response_date ?? ""}/>
